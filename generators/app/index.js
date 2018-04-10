@@ -6,6 +6,11 @@ module.exports = class extends Generator {
         // Calling the super constructor is important so our generator is correctly set up
         super(args, opts);
   
+        this.argument('myarg', {
+            type: Array,
+            required: true
+        });
+
         // Next, add your custom code
         this.option('babel'); // This method adds support for a `--babel` flag
     }
@@ -16,5 +21,29 @@ module.exports = class extends Generator {
     
     method2() {
         this.log('method 2 just ran');
-    }    
+        this.log(this.options['myarg'])
+    }
+
+    initializing() {
+        this.composeWith(require.resolve('../turbo'), {
+            yourarg: 123
+        });
+        this.composeWith(require.resolve('../electric'));
+    }
+
+    prompting() {
+        return this.prompt([{
+            type    : 'input',
+            name    : 'name',
+            message : 'Your project name',
+            default : this.appname // Default to current folder name
+        }, {
+            type    : 'confirm',
+            name    : 'cool',
+            message : 'Would you like to enable the Cool feature?'
+        }]).then((answers) => {
+            this.log('app name', answers.name);
+            this.log('cool feature', answers.cool);
+        });
+      }    
   };
